@@ -151,8 +151,10 @@ void main() {
 
     test('Temperature database handles database errors gracefully', () async {
       // Test that database operations handle errors without crashing
+      // Using unique session ID to avoid conflicts with parallel tests
       
       final dbHelper = TemperatureDatabaseHelper.instance;
+      final sessionId = 'test-error-${DateTime.now().millisecondsSinceEpoch}';
       
       // Create a valid reading
       final reading = TemperatureReading(
@@ -163,12 +165,15 @@ void main() {
       );
       
       // Insert reading with valid session ID
-      await dbHelper.insertReading(reading, 'session-1');
+      await dbHelper.insertReading(reading, sessionId);
       
       // Verify reading was inserted
-      final readings = await dbHelper.getReadingsBySession('session-1');
+      final readings = await dbHelper.getReadingsBySession(sessionId);
       expect(readings.length, equals(1));
       expect(readings.first.probeId, equals('probe-1'));
+      
+      // Clean up
+      await dbHelper.deleteReadingsBySession(sessionId);
     });
 
     test('Storage service handles initialization failure gracefully', () async {
@@ -267,8 +272,13 @@ void main() {
       await Hive.openBox<CookSessionModel>(LocalStorageService.cookSessionsBoxName);
       await Hive.openBox(LocalStorageService.preferencesBoxName);
       
-      // Clear all data when storage is empty
-      await LocalStorageService.clearAllData();
+      // Note: Not opening cook_programs box since it's not needed for this test
+      // and would require registering additional type adapters
+      
+      // Clear only the boxes we opened
+      await LocalStorageService.getDevicesBox().clear();
+      await LocalStorageService.getCookSessionsBox().clear();
+      await LocalStorageService.getPreferencesBox().clear();
       
       // Verify boxes are still accessible and empty
       expect(LocalStorageService.getDevicesBox().isEmpty, isTrue);

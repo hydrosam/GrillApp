@@ -1,12 +1,14 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/device_model.dart';
 import '../models/cook_session_model.dart';
+import '../models/cook_program_model.dart';
 import 'temperature_database_helper.dart';
 
 /// Service for managing local storage with Hive and SQLite
 class LocalStorageService {
   static const String devicesBoxName = 'devices';
   static const String cookSessionsBoxName = 'cook_sessions';
+  static const String cookProgramsBoxName = 'cook_programs';
   static const String preferencesBoxName = 'preferences';
 
   /// Initialize Hive and SQLite
@@ -21,6 +23,12 @@ class LocalStorageService {
     if (!Hive.isAdapterRegistered(1)) {
       Hive.registerAdapter(CookSessionModelAdapter());
     }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(CookProgramModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(3)) {
+      Hive.registerAdapter(CookStageModelAdapter());
+    }
 
     // Open boxes
     await openBoxes();
@@ -33,6 +41,7 @@ class LocalStorageService {
   static Future<void> openBoxes() async {
     await Hive.openBox<DeviceModel>(devicesBoxName);
     await Hive.openBox<CookSessionModel>(cookSessionsBoxName);
+    await Hive.openBox<CookProgramModel>(cookProgramsBoxName);
     await Hive.openBox(preferencesBoxName);
   }
 
@@ -44,6 +53,11 @@ class LocalStorageService {
   /// Get the cook sessions box
   static Box<CookSessionModel> getCookSessionsBox() {
     return Hive.box<CookSessionModel>(cookSessionsBoxName);
+  }
+
+  /// Get the cook programs box
+  static Box<CookProgramModel> getCookProgramsBox() {
+    return Hive.box<CookProgramModel>(cookProgramsBoxName);
   }
 
   /// Get the preferences box
@@ -60,6 +74,7 @@ class LocalStorageService {
   static Future<void> clearAllData() async {
     await getDevicesBox().clear();
     await getCookSessionsBox().clear();
+    await getCookProgramsBox().clear();
     await getPreferencesBox().clear();
   }
 }
