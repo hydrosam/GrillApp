@@ -50,4 +50,22 @@ class GrillDevice extends Equatable {
       fanStatus: FanStatus.fromJson(json['fanStatus'] as Map<String, dynamic>),
     );
   }
+
+  GrillDevice copyWith({
+    String? id,
+    String? name,
+    DeviceType? type,
+    ConnectionStatus? status,
+    List<Probe>? probes,
+    FanStatus? fanStatus,
+  }) {
+    return GrillDevice(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      probes: probes ?? this.probes,
+      fanStatus: fanStatus ?? this.fanStatus,
+    );
+  }
 }

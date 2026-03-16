@@ -30,4 +30,16 @@ class FanStatus extends Equatable {
       lastUpdate: DateTime.parse(json['lastUpdate'] as String),
     );
   }
+
+  FanStatus copyWith({
+    int? speed,
+    bool? isAutomatic,
+    DateTime? lastUpdate,
+  }) {
+    return FanStatus(
+      speed: speed ?? this.speed,
+      isAutomatic: isAutomatic ?? this.isAutomatic,
+      lastUpdate: lastUpdate ?? this.lastUpdate,
+    );
+  }
 }

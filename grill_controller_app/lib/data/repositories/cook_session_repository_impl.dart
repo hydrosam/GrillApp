@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:uuid/uuid.dart';
+import '../../domain/entities/cook_program.dart';
 import '../../domain/entities/cook_session.dart';
 import '../../domain/entities/temperature_reading.dart';
 import '../../domain/repositories/cook_session_repository.dart';
 import '../datasources/local_storage_service.dart';
 import '../datasources/temperature_database_helper.dart';
+import '../models/cook_program_model.dart';
 import '../models/cook_session_model.dart';
 
 /// Implementation of CookSessionRepository using Hive and SQLite
@@ -79,7 +81,7 @@ class CookSessionRepositoryImpl implements CookSessionRepository {
       deviceId: sessionModel.deviceId,
       readings: readings,
       notes: sessionModel.notes,
-      program: null, // TODO: Load program if programId is set
+      program: _loadProgram(sessionModel.programId),
     );
   }
 
@@ -104,7 +106,7 @@ class CookSessionRepositoryImpl implements CookSessionRepository {
         deviceId: model.deviceId,
         readings: readings,
         notes: model.notes,
-        program: null, // TODO: Load program if programId is set
+        program: _loadProgram(model.programId),
       ));
     }
 
@@ -178,7 +180,7 @@ class CookSessionRepositoryImpl implements CookSessionRepository {
         deviceId: model.deviceId,
         readings: readings,
         notes: model.notes,
-        program: null, // TODO: Load program if programId is set
+        program: _loadProgram(model.programId),
       ));
     }
 
@@ -211,7 +213,7 @@ class CookSessionRepositoryImpl implements CookSessionRepository {
       deviceId: model.deviceId,
       readings: readings,
       notes: model.notes,
-      program: null, // TODO: Load program if programId is set
+      program: _loadProgram(model.programId),
     );
   }
 
@@ -228,6 +230,31 @@ class CookSessionRepositoryImpl implements CookSessionRepository {
       final session = await getSession(sessionId);
       _sessionStreamControllers[sessionId]!.add(session);
     }
+  }
+
+  Future<void> attachProgram(String sessionId, String programId) async {
+    final box = LocalStorageService.getCookSessionsBox();
+    final sessionModel = box.get(sessionId);
+
+    if (sessionModel == null) {
+      throw Exception('Session not found: $sessionId');
+    }
+
+    sessionModel.programId = programId;
+    await sessionModel.save();
+  }
+
+  CookProgram? _loadProgram(String? programId) {
+    if (programId == null) {
+      return null;
+    }
+
+    final box = LocalStorageService.getCookProgramsBox();
+    final model = box.get(programId);
+    if (model is CookProgramModel) {
+      return model.toEntity();
+    }
+    return model?.toEntity();
   }
 
   /// Dispose all stream controllers

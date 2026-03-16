@@ -35,4 +35,18 @@ class Probe extends Equatable {
       targetTemperature: json['targetTemperature'] as double?,
     );
   }
+
+  Probe copyWith({
+    String? id,
+    ProbeType? type,
+    bool? isActive,
+    double? targetTemperature,
+  }) {
+    return Probe(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      isActive: isActive ?? this.isActive,
+      targetTemperature: targetTemperature ?? this.targetTemperature,
+    );
+  }
 }

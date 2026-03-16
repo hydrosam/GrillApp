@@ -11,6 +11,11 @@ class LocalStorageService {
   static const String cookProgramsBoxName = 'cook_programs';
   static const String preferencesBoxName = 'preferences';
 
+  static Box<DeviceModel>? _devicesBoxOverride;
+  static Box<CookSessionModel>? _cookSessionsBoxOverride;
+  static Box<CookProgramModel>? _cookProgramsBoxOverride;
+  static Box? _preferencesBoxOverride;
+
   /// Initialize Hive and SQLite
   static Future<void> initialize() async {
     // Initialize Hive with Flutter
@@ -47,26 +52,52 @@ class LocalStorageService {
 
   /// Get the devices box
   static Box<DeviceModel> getDevicesBox() {
-    return Hive.box<DeviceModel>(devicesBoxName);
+    return _devicesBoxOverride ?? Hive.box<DeviceModel>(devicesBoxName);
   }
 
   /// Get the cook sessions box
   static Box<CookSessionModel> getCookSessionsBox() {
-    return Hive.box<CookSessionModel>(cookSessionsBoxName);
+    return _cookSessionsBoxOverride ??
+        Hive.box<CookSessionModel>(cookSessionsBoxName);
   }
 
   /// Get the cook programs box
   static Box<CookProgramModel> getCookProgramsBox() {
-    return Hive.box<CookProgramModel>(cookProgramsBoxName);
+    return _cookProgramsBoxOverride ??
+        Hive.box<CookProgramModel>(cookProgramsBoxName);
   }
 
   /// Get the preferences box
   static Box getPreferencesBox() {
-    return Hive.box(preferencesBoxName);
+    return _preferencesBoxOverride ?? Hive.box(preferencesBoxName);
+  }
+
+  static void setDevicesBox(Box<DeviceModel> box) {
+    _devicesBoxOverride = box;
+  }
+
+  static void setCookSessionsBox(Box<CookSessionModel> box) {
+    _cookSessionsBoxOverride = box;
+  }
+
+  static void setCookProgramsBox(Box<CookProgramModel> box) {
+    _cookProgramsBoxOverride = box;
+  }
+
+  static void setPreferencesBox(Box box) {
+    _preferencesBoxOverride = box;
+  }
+
+  static void clearOverrides() {
+    _devicesBoxOverride = null;
+    _cookSessionsBoxOverride = null;
+    _cookProgramsBoxOverride = null;
+    _preferencesBoxOverride = null;
   }
 
   /// Close all boxes
   static Future<void> closeBoxes() async {
+    clearOverrides();
     await Hive.close();
   }
 

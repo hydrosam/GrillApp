@@ -32,6 +32,18 @@ class CookStage extends Equatable {
       alertOnComplete: json['alertOnComplete'] as bool,
     );
   }
+
+  CookStage copyWith({
+    double? targetTemperature,
+    Duration? duration,
+    bool? alertOnComplete,
+  }) {
+    return CookStage(
+      targetTemperature: targetTemperature ?? this.targetTemperature,
+      duration: duration ?? this.duration,
+      alertOnComplete: alertOnComplete ?? this.alertOnComplete,
+    );
+  }
 }
 
 /// Cook program with multiple stages
@@ -68,6 +80,20 @@ class CookProgram extends Equatable {
           .map((s) => CookStage.fromJson(s as Map<String, dynamic>))
           .toList(),
       status: CookProgramStatus.values.firstWhere((e) => e.name == json['status']),
+    );
+  }
+
+  CookProgram copyWith({
+    String? id,
+    String? name,
+    List<CookStage>? stages,
+    CookProgramStatus? status,
+  }) {
+    return CookProgram(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      stages: stages ?? this.stages,
+      status: status ?? this.status,
     );
   }
 }
